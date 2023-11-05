@@ -18,17 +18,25 @@ class MMModemSimpleInterface(ServiceInterface):
                 await self.mm_modem.bearers[b].doConnect()
                 return b
 
-        bearer = await self.mm_modem.doCreateBearer(properties)
-        await self.mm_modem.bearers[bearer].doConnect()
+        try:
+            bearer = await self.mm_modem.doCreateBearer(properties)
+            await self.mm_modem.bearers[bearer].doConnect()
+        except Exception:
+            #TODO: set bearer some default value to avoid further exceptions
+            #bearer = i can't get this to work
+            pass
         return bearer
 
     @method()
     async def Disconnect(self, path: 'o'):
-        if path == '/':
-            for b in self.mm_modem.bearers:
-                await self.mm_modem.bearers[b].doDisconnect()
-        if path in self.mm_modem.bearers:
-            await self.mm_modem.bearers[path].doDisconnect()
+        try:
+            if path == '/':
+                for b in self.mm_modem.bearers:
+                    await self.mm_modem.bearers[b].doDisconnect()
+            if path in self.mm_modem.bearers:
+                await self.mm_modem.bearers[path].doDisconnect()
+        except Exception:
+            print("Catched Exception in doDisconnect(). Ignoring...")
 
     @method()
     async def GetStatus(self) -> 'a{sv}':
